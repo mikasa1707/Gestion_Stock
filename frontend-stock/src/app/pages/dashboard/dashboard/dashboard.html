@@ -1,0 +1,248 @@
+<div class="page-header">
+  <h4>Dashboard</h4>
+  <p>Vue globale stock, ventes et coût matière</p>
+</div>
+
+@if (loading) {
+  <div class="text-center py-4">
+    <div class="spinner-border"></div>
+  </div>
+} @else {
+  <div class="row g-3 mb-3">
+    <div class="col-md-3">
+      <div class="stat-card">
+        <span>Articles</span>
+        <strong>{{ cards.nombreArticles }}</strong>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <span>Fiches techniques</span>
+        <strong>{{ cards.nombreFichesTechniques }}</strong>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <span>Ventes aujourd'hui</span>
+        <strong>{{ cards.nombreVentesJour }}</strong>
+        <small>{{ cards.totalVentesJour | number: '1.0-0' }} Ar</small>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="stat-card">
+        <span>Ventes du mois</span>
+        <strong>{{ cards.nombreVentesMois }}</strong>
+        <small>{{ cards.totalVentesMois | number: '1.0-0' }} Ar</small>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-md-4">
+      <div class="stat-card danger">
+        <span>Articles en stock minimum</span>
+        <strong>{{ stockFaible.length }}</strong>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card">
+        <span>Coût matière mois</span>
+        <strong>{{ cards.coutMatiere | number: '1.0-0' }} Ar</strong>
+      </div>
+    </div>
+
+    <div class="col-md-4">
+      <div class="stat-card">
+        <span>CA mois</span>
+        <strong>{{ cards.totalVentesMois | number: '1.0-0' }} Ar</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Derniers mouvements</h5>
+        </div>
+
+        <div class="table-fixed">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Produit</th>
+                <th>Qté</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (m of derniersMouvements; track m.id) {
+                <tr>
+                  <td>
+                    @if (m.typeMouvement === 'ENTREE') {
+                      <span class="badge bg-success">Entrée</span>
+                    } @else if (m.typeMouvement === 'SORTIE') {
+                      <span class="badge bg-danger">Sortie</span>
+                    } @else {
+                      <span class="badge bg-warning text-dark">Inventaire</span>
+                    }
+                  </td>
+
+                  <td>{{ m.article?.nom || m.ficheTechnique?.nom || '-' }}</td>
+
+                  <td>
+                    {{ m.quantite | number: '1.0-3' }}
+                    {{ m.unite?.code }}
+                  </td>
+
+                  <td>{{ m.createdAt | date: 'dd/MM HH:mm' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Aucun mouvement</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Articles en stock minimum</h5>
+        </div>
+
+        <div class="table-fixed">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Stock</th>
+                <th>Seuil</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (a of stockFaible; track a.id) {
+                <tr>
+                  <td>
+                    <strong>{{ a.nom }}</strong>
+                    <div class="small text-muted">{{ a.reference }}</div>
+                  </td>
+
+                  <td class="text-danger">{{ a.stock | number: '1.0-3' }} {{ a.unite }}</td>
+
+                  <td>{{ a.seuil | number: '1.0-3' }} {{ a.unite }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3" class="text-center text-muted">Aucun stock faible</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-12">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Ventes par fiche technique</h5>
+        </div>
+
+        <div class="row g-3 align-items-start">
+          <div class="col-lg-5">
+            <div class="donut-wrap">
+              <svg viewBox="0 0 42 42" class="donut">
+                <circle class="donut-hole" cx="21" cy="21" r="15.915"></circle>
+
+                @for (item of ventesParFt; track item.ftId; let i = $index) {
+                  <circle
+                    class="donut-segment"
+                    [class.active]="selectedFtId === item.ftId"
+                    cx="21"
+                    cy="21"
+                    r="15.915"
+                    [attr.stroke-dasharray]="donutValue(item) + ' ' + (100 - donutValue(item))"
+                    [attr.stroke-dashoffset]="25 - donutOffset(i)"
+                    (click)="selectFtSlice(item.ftId)"
+                  ></circle>
+                }
+              </svg>
+
+              <div class="donut-center">
+                <strong>{{ totalVentesFt | number: '1.0-0' }}</strong>
+                <span>Ar</span>
+              </div>
+            </div>
+
+            <div class="donut-legend mt-3">
+              @for (item of ventesParFt; track item.ftId) {
+                <button
+                  type="button"
+                  class="legend-item"
+                  [class.active]="selectedFtId === item.ftId"
+                  (click)="selectFtSlice(item.ftId)"
+                >
+                  <span>{{ item.nom }}</span>
+                  <strong>{{ item.total | number: '1.0-0' }} Ar</strong>
+                </button>
+              } @empty {
+                <div class="text-center text-muted py-3">Aucune vente ce mois</div>
+              }
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="table-fixed sales-table">
+              <table class="table table-sm align-middle">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Réf.</th>
+                    <th>FT</th>
+                    <th>Qté</th>
+                    <th>Total</th>
+                    <th>Marge</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (v of ventesFtFiltrees; track v.venteId + '-' + v.ftId) {
+                    <tr>
+                      <td>{{ v.date | date: 'dd/MM/yyyy' }}</td>
+                      <td>{{ v.reference }}</td>
+                      <td>{{ v.ftNom }}</td>
+                      <td>{{ v.quantite | number: '1.0-2' }}</td>
+                      <td>{{ v.montant | number: '1.0-0' }} Ar</td>
+                      <td>
+                        <span [class.text-success]="v.marge >= 0" [class.text-danger]="v.marge < 0">
+                          {{ v.marge | number: '1.0-0' }} Ar
+                        </span>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="6" class="text-center text-muted">
+                        Aucune vente pour cette fiche technique
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+}

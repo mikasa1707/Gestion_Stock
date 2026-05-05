@@ -1,0 +1,171 @@
+.page-header {
+  margin-bottom: 20px;
+
+  h4 {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #6b7280;
+  }
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.panel-header {
+  margin-bottom: 12px;
+
+  h5 {
+    margin: 0;
+    font-weight: 700;
+  }
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.panel {
+  transition: 0.2s;
+}
+
+.panel:hover {
+  transform: translateY(0);
+}
+
+.badge {
+  padding: 0.45rem 0.65rem;
+}
+
+.allergene-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.allergene-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 8px 10px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.allergene-item input {
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .panel {
+    padding: 14px;
+  }
+
+  .table {
+    font-size: 0.9rem;
+  }
+}
+
+.scroll-table {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+}
+
+.scroll-table table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.one-line {
+  display: block;
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.article-settings {
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.settings-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.settings-tab {
+  border: 0;
+  background: transparent;
+  color: #0d6efd;
+  padding: 10px 16px;
+  border-radius: 10px;
+}
+
+.settings-tab.active {
+  background: #0d6efd;
+  color: #fff;
+}
+
+.article-settings {
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 14px;
+  padding: 16px;
+
+  display: flex;
+  flex-direction: column;
+}
+
+/* onglets fixes */
+.settings-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 12px;
+  flex-shrink: 0;
+}
+
+/* contenu scrollable */
+.settings-content {
+  height: 320px;
+  max-height: 45vh;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+/* optionnel : scroll propre */
+.settings-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.settings-content::-webkit-scrollbar-thumb {
+  background: #d0d5dd;
+  border-radius: 4px;
+}
+
+/* chaque onglet */
+.tab-pane {
+  min-height: 100%;
+}

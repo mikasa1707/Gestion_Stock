@@ -1,0 +1,110 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h5 class="mb-0">Unités</h5>
+
+  <button
+    class="btn btn-primary btn-sm"
+    data-bs-toggle="modal"
+    data-bs-target="#uniteModal"
+    (click)="openCreateModal()"
+  >
+    <i class="fa-solid fa-plus"></i>
+    Ajouter
+  </button>
+</div>
+
+@if (error) {
+  <div class="alert alert-danger">{{ error }}</div>
+}
+
+@if (loading) {
+  <div class="text-center py-4">
+    <div class="spinner-border"></div>
+  </div>
+} @else {
+  <div class="table-responsive">
+    <table class="table align-middle">
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Libellé</th>
+          <th>Actif</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (item of items; track item.id) {
+          <tr>
+            <td><strong>{{ item.code }}</strong></td>
+            <td>{{ item.libelle }}</td>
+            <td>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [checked]="item.actif"
+                  (change)="toggleActif(item)"
+                />
+              </div>
+            </td>
+            <td class="text-end">
+              <button
+                class="btn btn-sm btn-outline-primary me-2"
+                data-bs-toggle="modal"
+                data-bs-target="#uniteModal"
+                (click)="openEditModal(item)"
+              >
+                <i class="fa-solid fa-pen"></i>
+              </button>
+
+              <button class="btn btn-sm btn-outline-danger" (click)="remove(item)">
+                <i class="fa-solid fa-trash"></i>
+              </button>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="4" class="text-center text-muted">Aucune unité</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+<div class="modal fade" id="uniteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedId ? 'Modifier unité' : 'Ajouter unité' }}
+        </h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form (ngSubmit)="save()">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Code</label>
+            <input class="form-control" [(ngModel)]="form.code" name="code" required />
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Libellé</label>
+            <input class="form-control" [(ngModel)]="form.libelle" name="libelle" required />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Annuler
+          </button>
+
+          <button class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Enregistrement...' : selectedId ? 'Modifier' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

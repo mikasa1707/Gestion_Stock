@@ -1,0 +1,137 @@
+<div class="page-header">
+  <h4>Stockage</h4>
+  <p>Lieux et zones de stockage</p>
+</div>
+
+@if (loading) {
+  <div class="text-center py-4">
+    <div class="spinner-border"></div>
+  </div>
+} @else {
+  <div class="row g-3">
+    <div class="col-lg-6">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Lieux de stockage</h5>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-5">
+            <input class="form-control" placeholder="Nom" [(ngModel)]="lieuForm.nom" />
+          </div>
+
+          <div class="col-md-5">
+            <input
+              class="form-control"
+              placeholder="Description"
+              [(ngModel)]="lieuForm.description"
+            />
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" (click)="saveLieu()">+</button>
+          </div>
+        </div>
+
+        <div class="table-fixed">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Nom</th>
+                <th>Description</th>
+                <th>Zones</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (lieu of lieux; track lieu.id) {
+                <tr>
+                  <td><strong>{{ lieu.nom }}</strong></td>
+                  <td>{{ lieu.description || '-' }}</td>
+                  <td>{{ lieu.zones?.length || 0 }}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeLieu(lieu.id!)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Aucun lieu</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Zones de stockage</h5>
+        </div>
+
+        <div class="row g-2 mb-3">
+          <div class="col-md-3">
+            <input class="form-control" placeholder="Nom" [(ngModel)]="zoneForm.nom" />
+          </div>
+
+          <div class="col-md-3">
+            <select class="form-select" [(ngModel)]="zoneForm.lieuStockageId">
+              <option [ngValue]="null">Lieu</option>
+              @for (lieu of lieux; track lieu.id) {
+                <option [ngValue]="lieu.id">{{ lieu.nom }}</option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <input
+              class="form-control"
+              placeholder="Description"
+              [(ngModel)]="zoneForm.description"
+            />
+          </div>
+
+          <div class="col-md-2">
+            <button class="btn btn-primary w-100" (click)="saveZone()">+</button>
+          </div>
+        </div>
+
+        <div class="table-fixed">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Zone</th>
+                <th>Lieu</th>
+                <th>Description</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (zone of zones; track zone.id) {
+                <tr>
+                  <td><strong>{{ zone.nom }}</strong></td>
+                  <td>{{ zone.lieuStockage?.nom || '-' }}</td>
+                  <td>{{ zone.description || '-' }}</td>
+                  <td class="text-end">
+                    <button class="btn btn-sm btn-outline-danger" (click)="removeZone(zone.id!)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Aucune zone</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+}

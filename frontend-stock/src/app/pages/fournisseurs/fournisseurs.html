@@ -1,0 +1,152 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h4>Fournisseurs</h4>
+    <p>Gestion des fournisseurs liés aux articles</p>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    data-bs-toggle="modal"
+    data-bs-target="#fournisseurModal"
+    (click)="openCreateModal()"
+  >
+    <i class="fa-solid fa-plus"></i>
+    Ajouter
+  </button>
+</div>
+
+<div class="panel">
+  <div class="panel-header">
+    <h5>Liste des fournisseurs</h5>
+  </div>
+
+  @if (loading) {
+    <div class="text-center py-4">
+      <div class="spinner-border"></div>
+    </div>
+  } @else {
+    <div class="mb-3">
+      <input class="form-control" placeholder="Rechercher..." [(ngModel)]="search" />
+    </div>
+
+    <div class="table-fixed">
+      <table class="table align-middle">
+        <thead>
+          <tr>
+            <th>Nom</th>
+            <th>Contact</th>
+            <th>Téléphone</th>
+            <th>Email</th>
+            <th>Actif</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          @for (item of filteredItems(); track item.id) {
+            <tr>
+              <td><strong>{{ item.nom }}</strong></td>
+              <td>{{ item.contact || '-' }}</td>
+              <td>{{ item.telephone || '-' }}</td>
+              <td>{{ item.email || '-' }}</td>
+              <td>
+                @if (item.actif) {
+                  <span class="badge bg-success">Actif</span>
+                } @else {
+                  <span class="badge bg-secondary">Inactif</span>
+                }
+              </td>
+              <td class="text-end">
+                <button
+                  class="btn btn-sm btn-outline-primary me-2"
+                  data-bs-toggle="modal"
+                  data-bs-target="#fournisseurModal"
+                  (click)="openEditModal(item)"
+                >
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+
+                <button class="btn btn-sm btn-outline-danger" (click)="remove(item)">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="6" class="text-center text-muted">Aucun fournisseur</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+<div class="modal fade" id="fournisseurModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedId ? 'Modifier fournisseur' : 'Ajouter fournisseur' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form (ngSubmit)="save()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Nom</label>
+              <input class="form-control" [(ngModel)]="form.nom" name="nom" required />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Contact</label>
+              <input class="form-control" [(ngModel)]="form.contact" name="contact" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Téléphone</label>
+              <input class="form-control" [(ngModel)]="form.telephone" name="telephone" />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input class="form-control" [(ngModel)]="form.email" name="email" />
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Adresse</label>
+              <textarea
+                class="form-control"
+                rows="2"
+                [(ngModel)]="form.adresse"
+                name="adresse"
+              ></textarea>
+            </div>
+
+            <div class="col-12">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="form.actif"
+                  name="actif"
+                />
+                <label class="form-check-label">Actif</label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+
+          <button class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Enregistrement...' : selectedId ? 'Modifier' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

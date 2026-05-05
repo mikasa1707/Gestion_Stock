@@ -1,0 +1,24 @@
+.page-header {
+  margin-bottom: 20px;
+
+  h4 {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #6b7280;
+  }
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.nav-pills .nav-link {
+  border-radius: 10px;
+}

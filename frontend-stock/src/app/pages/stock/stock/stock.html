@@ -1,0 +1,309 @@
+<p>stock works!</p>
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h4>Stock</h4>
+    <p>Stock actuel calculé depuis les mouvements</p>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    data-bs-toggle="modal"
+    data-bs-target="#stockMouvementModal"
+    (click)="openMouvementModal()"
+  >
+    <i class="fa-solid fa-plus"></i>
+    Mouvement
+  </button>
+</div>
+
+@if (loading) {
+  <div class="text-center py-4">
+    <div class="spinner-border"></div>
+  </div>
+} @else {
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <div class="panel">
+        <div class="panel-header">
+          <h5>Stock des articles</h5>
+        </div>
+
+        <div class="mb-3">
+          <input
+            class="form-control"
+            placeholder="Rechercher..."
+            [(ngModel)]="search"
+            (ngModelChange)="onSearchChange()"
+          />
+        </div>
+
+        <div class="table-fixed">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Référence</th>
+                <th>Article</th>
+                <th>Famille</th>
+                <th>Stock</th>
+                <th>Seuil</th>
+                <th>État</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (row of paginatedRows(); track row.article.id) {
+                <tr
+                  class="clickable-row"
+                  [class.table-active]="selectedArticle?.article?.id === row.article.id"
+                  (click)="selectRow(row)"
+                >
+                  <td>
+                    <strong>{{ row.article.reference }}</strong>
+                  </td>
+
+                  <td>{{ row.article.nom }}</td>
+
+                  <td>{{ row.article.famille?.nom || '-' }}</td>
+
+                  <td>
+                    <strong>
+                      {{ row.stock | number: '1.0-3' }}
+                      {{ row.unite?.code }}
+                    </strong>
+                  </td>
+
+                  <td>
+                    {{ row.seuil | number: '1.0-3' }}
+                    {{ row.article.uniteSeuilMinimum?.code || row.unite?.code }}
+                  </td>
+
+                  <td>
+                    @if (row.stockFaible) {
+                      <span class="badge bg-danger">Stock faible</span>
+                    } @else {
+                      <span class="badge bg-success">OK</span>
+                    }
+                  </td>
+
+                  <td class="text-end" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#stockMouvementModal"
+                      (click)="openMouvementModal(row)"
+                    >
+                      <i class="fa-solid fa-plus-minus"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center text-muted">
+                    Aucun article
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button
+            class="btn btn-sm btn-light me-2"
+            (click)="previousPage()"
+            [disabled]="page === 1"
+          >
+            ←
+          </button>
+
+          <span>Page {{ page }} / {{ totalPages() }}</span>
+
+          <button
+            class="btn btn-sm btn-light ms-2"
+            (click)="nextPage()"
+            [disabled]="page === totalPages()"
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="panel details-panel">
+        @if (!selectedArticle) {
+          <div class="text-center text-muted py-4">
+            Sélectionne un article pour voir l’historique
+          </div>
+        } @else {
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <div>
+              <h6 class="mb-1">{{ selectedArticle.article.nom }}</h6>
+              <small class="text-muted">{{ selectedArticle.article.reference }}</small>
+            </div>
+
+            @if (selectedArticle.stockFaible) {
+              <span class="badge bg-danger">Stock faible</span>
+            } @else {
+              <span class="badge bg-success">OK</span>
+            }
+          </div>
+
+          <div class="stock-summary mb-3">
+            <div>
+              <span>Stock actuel</span>
+              <strong>
+                {{ selectedArticle.stock | number: '1.0-3' }}
+                {{ selectedArticle.unite?.code }}
+              </strong>
+            </div>
+
+            <div>
+              <span>Seuil minimum</span>
+              <strong>
+                {{ selectedArticle.seuil | number: '1.0-3' }}
+                {{ selectedArticle.article.uniteSeuilMinimum?.code || selectedArticle.unite?.code }}
+              </strong>
+            </div>
+          </div>
+
+          <h6 class="mb-2">Historique mouvements</h6>
+
+          <div class="table-responsive table-lines-details">
+            <table class="table table-sm align-middle">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Qté</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (m of selectedMouvements; track m.id) {
+                  <tr>
+                    <td>
+                      @if (m.typeMouvement === 'ENTREE') {
+                        <span class="badge bg-success">Entrée</span>
+                      } @else if (m.typeMouvement === 'SORTIE') {
+                        <span class="badge bg-danger">Sortie</span>
+                      } @else {
+                        <span class="badge bg-warning text-dark">Inventaire</span>
+                      }
+                    </td>
+
+                    <td>
+                      {{ m.quantite | number: '1.0-3' }}
+                      {{ m.unite?.code }}
+                    </td>
+
+                    <td>{{ m.createdAt | date: 'dd/MM HH:mm' }}</td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="3" class="text-center text-muted">
+                      Aucun mouvement
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<div class="modal fade" id="stockMouvementModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter mouvement stock</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form (ngSubmit)="saveMouvement()">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label">Type</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.typeMouvement"
+                name="typeMouvement"
+              >
+                <option value="ENTREE">Entrée</option>
+                <option value="SORTIE">Sortie</option>
+                <option value="INVENTAIRE">Inventaire</option>
+              </select>
+            </div>
+
+            <div class="col-md-8">
+              <label class="form-label">Article</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.articleId"
+                name="articleId"
+              >
+                <option [ngValue]="null">Choisir article</option>
+
+                @for (article of articles; track article.id) {
+                  <option [ngValue]="article.id">{{ article.nom }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Quantité</label>
+              <input
+                class="form-control"
+                type="number"
+                min="0.001"
+                step="0.001"
+                [(ngModel)]="form.quantite"
+                name="quantite"
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Unité</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.uniteId"
+                name="uniteId"
+              >
+                <option [ngValue]="null">Unité</option>
+
+                @for (u of unites; track u.id) {
+                  <option [ngValue]="u.id">{{ u.code }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Commentaire</label>
+              <textarea
+                class="form-control"
+                rows="2"
+                [(ngModel)]="form.commentaire"
+                name="commentaire"
+              ></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+            Annuler
+          </button>
+
+          <button class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

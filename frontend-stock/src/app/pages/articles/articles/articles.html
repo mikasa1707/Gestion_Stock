@@ -1,0 +1,603 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h4>Articles</h4>
+    <p>Gestion des articles achetables et stockables</p>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    data-bs-toggle="modal"
+    data-bs-target="#articleModal"
+    (click)="openCreateModal()"
+  >
+    <i class="fa-solid fa-plus"></i>
+    Ajouter
+  </button>
+</div>
+
+@if (error) {
+  <div class="alert alert-danger">
+    {{ error }}
+  </div>
+}
+
+<div class="row g-3">
+  <div class="col-lg-12">
+    <div class="panel">
+      <div class="panel-header">
+        <h5>Liste des articles</h5>
+      </div>
+
+      @if (loadingArticles) {
+        <div class="text-center py-4">
+          <div class="spinner-border"></div>
+        </div>
+      } @else {
+        <div class="mb-3">
+          <input class="form-control" placeholder="Rechercher..." [(ngModel)]="search" />
+        </div>
+        <div class="table-fixed">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Référence</th>
+                <th>Nom</th>
+                <th>Famille</th>
+                <th>Fournisseur</th>
+                <th>Conditionnement</th>
+                <th>Allergènes</th>
+                <th>Prix achat</th>
+                <th>Seuil</th>
+                <th>Unité</th>
+                <th>Actif</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (article of paginatedArticles(); track article.id) {
+                <tr>
+                  <td>
+                    <strong>{{ article.reference }}</strong>
+                  </td>
+                  <td>{{ article.nom }}</td>
+                  <td>{{ article.famille?.nom || '-' }}</td>
+                  <td>
+                    @if (article.fournisseurs?.length) {
+                      <span
+                        class="one-line"
+                        [title]="article.fournisseurs!.map((f) => f.fournisseur?.nom).join(', ')"
+                      >
+                        {{ article.fournisseurs!.map((f) => f.fournisseur?.nom).join(', ') }}
+                      </span>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    @if (article.conditionnement) {
+                      <span
+                        class="one-line"
+                        [title]="
+                          'Achat : ' +
+                          (article.conditionnement.quantiteAchat | number: '1.2-2') +
+                          ' ' +
+                          (article.conditionnement.uniteAchat?.code || '') +
+                          ' | Inventaire : ' +
+                          (article.conditionnement.quantiteInventaire | number: '1.2-2') +
+                          ' ' +
+                          (article.conditionnement.uniteInventaire?.code || '')
+                        "
+                      >
+                        <strong>A :</strong>
+                        {{ article.conditionnement.quantiteAchat | number: '1.2-2' }}
+                        {{ article.conditionnement.uniteAchat?.code }}
+
+                        <span class="mx-1">|</span>
+
+                        <strong>I :</strong>
+                        {{ article.conditionnement.quantiteInventaire | number: '1.2-2' }}
+                        {{ article.conditionnement.uniteInventaire?.code }}
+                      </span>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    @if (article.allergenes?.length) {
+                      <span
+                        class="one-line"
+                        [title]="article.allergenes!.map((a) => a.nom).join(', ')"
+                      >
+                        {{ article.allergenes!.map((a) => a.nom).join(', ') }}
+                      </span>
+                    } @else {
+                      <span class="text-muted">-</span>
+                    }
+                  </td>
+                  <td>
+                    @if (article.fournisseurs?.length) {
+                      @let principal =
+                        article.fournisseurs!.find((f) => f.fournisseurPrincipal) ??
+                        article.fournisseurs![0];
+
+                      {{ principal?.prixAchat | number: '1.0-0' }} Ar
+                    } @else {
+                      {{ article.prixAchat | number: '1.0-0' }} Ar
+                    }
+                  </td>
+                  <td>{{ article.seuilMinimum | number: '1.2-2' }}</td>
+                  <td>{{ article.unite?.code }}</td>
+                  <td>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        [checked]="article.actif"
+                        (change)="toggleActif(article)"
+                      />
+                    </div>
+                  </td>
+                  <td class="text-end">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#articleModal"
+                      (click)="openEditModal(article)"
+                    >
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger" (click)="remove(article)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="11" class="text-center text-muted">Aucun article</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="d-flex justify-content-end mt-3">
+            <button
+              class="btn btn-sm btn-light me-2"
+              (click)="previousPage()"
+              [disabled]="page === 1"
+            >
+              ←
+            </button>
+
+            <span>Page {{ page }} / {{ totalPages() }}</span>
+
+            <button
+              class="btn btn-sm btn-light ms-2"
+              (click)="nextPage()"
+              [disabled]="page === totalPages()"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="articleModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0">
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedId ? 'Modifier article' : 'Ajouter article' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <!-- BODY -->
+      <form (ngSubmit)="save()">
+        <div class="modal-body">
+          <!-- INFOS PRINCIPALES -->
+          <div class="row g-3">
+            <div class="col-md-3">
+              <label class="form-label">Référence</label>
+              <input class="form-control" [(ngModel)]="form.reference" name="reference" />
+            </div>
+
+            <div class="col-md-5">
+              <label class="form-label">Nom</label>
+              <input class="form-control" [(ngModel)]="form.nom" name="nom" />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Unité</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.uniteId"
+                name="uniteId"
+                (change)="onUnitePrincipaleChange()"
+              >
+                <option [ngValue]="null">Choisir</option>
+                @for (u of unites; track u.id) {
+                  <option [ngValue]="u.id">{{ u.code }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Famille</label>
+              <select class="form-select" [(ngModel)]="form.familleId" name="familleId">
+                <option [ngValue]="null">Choisir</option>
+                @for (f of familles; track f.id) {
+                  <option [ngValue]="f.id">{{ f.nom }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Prix achat (fallback)</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="form.prixAchat"
+                name="prixAchat"
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Seuil minimum</label>
+              <input
+                type="number"
+                class="form-control"
+                [(ngModel)]="form.seuilMinimum"
+                name="seuilMinimum"
+              />
+            </div>
+
+            <div class="col-md-2">
+              <label class="form-label">Unité seuil</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.uniteSeuilMinimumId"
+                name="uniteSeuilMinimumId"
+              >
+                @for (u of unites; track u.id) {
+                  <option [ngValue]="u.id">{{ u.code }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-2 d-flex align-items-end">
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="form.actif"
+                  name="actif"
+                />
+                <label class="form-check-label">Actif</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-control"
+                rows="2"
+                [(ngModel)]="form.description"
+                name="description"
+              ></textarea>
+            </div>
+          </div>
+
+          <hr />
+
+          <!-- ONGLET PARAMETRES -->
+          <div class="article-settings">
+            <!-- TABS -->
+            <div class="settings-tabs">
+              <button
+                type="button"
+                class="settings-tab"
+                [class.active]="articleTab === 'conditionnement'"
+                (click)="articleTab = 'conditionnement'"
+              >
+                Conditionnement
+              </button>
+
+              <button
+                type="button"
+                class="settings-tab"
+                [class.active]="articleTab === 'fournisseurs'"
+                (click)="articleTab = 'fournisseurs'"
+              >
+                Fournisseurs
+              </button>
+
+              <button
+                type="button"
+                class="settings-tab"
+                [class.active]="articleTab === 'utilisations'"
+                (click)="articleTab = 'utilisations'"
+              >
+                Utilisations FT
+              </button>
+            </div>
+
+            <div class="settings-content">
+              <!-- ===================== -->
+              <!-- CONDITIONNEMENT -->
+              <!-- ===================== -->
+              @if (articleTab === 'conditionnement') {
+                <div class="tab-pane">
+                  <div class="row g-3">
+                    <div class="col-md-6">
+                      <label class="form-label">Achat</label>
+                      <div class="d-flex gap-2">
+                        <input
+                          type="number"
+                          class="form-control"
+                          [(ngModel)]="form.quantiteAchat"
+                          name="quantiteAchat"
+                        />
+                        <select
+                          class="form-select"
+                          [(ngModel)]="form.uniteAchatId"
+                          name="uniteAchatId"
+                        >
+                          @for (u of unites; track u.id) {
+                            <option [ngValue]="u.id">{{ u.code }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+
+                    <div class="col-md-6">
+                      <label class="form-label">Inventaire</label>
+                      <div class="d-flex gap-2">
+                        <input
+                          type="number"
+                          class="form-control"
+                          [(ngModel)]="form.quantiteInventaire"
+                          name="quantiteInventaire"
+                        />
+                        <select
+                          class="form-select"
+                          [(ngModel)]="form.uniteInventaireId"
+                          name="uniteInventaireId"
+                        >
+                          @for (u of unites; track u.id) {
+                            <option [ngValue]="u.id">{{ u.code }}</option>
+                          }
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              }
+
+              <!-- ===================== -->
+              <!-- FOURNISSEURS -->
+              <!-- ===================== -->
+              @if (articleTab === 'fournisseurs') {
+                <div class="tab-pane">
+                  <div class="mt-3">
+                    @if (!selectedId) {
+                      <div class="alert alert-info">Enregistre d’abord l’article</div>
+                    } @else {
+                      <!-- FORM -->
+                      <div class="row g-2 align-items-end">
+                        <div class="col-md-3">
+                          <label class="form-label">Fournisseur</label>
+                          <select
+                            class="form-select"
+                            [(ngModel)]="articleFournisseurForm.fournisseurId"
+                            name="afFournisseur"
+                          >
+                            <option [ngValue]="null">Choisir</option>
+                            @for (f of fournisseurs; track f.id) {
+                              @if (f.actif) {
+                                <option [ngValue]="f.id">{{ f.nom }}</option>
+                              }
+                            }
+                          </select>
+                        </div>
+
+                        <div class="col-md-2">
+                          <label class="form-label">Prix</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            [(ngModel)]="articleFournisseurForm.prixAchat"
+                            name="afPrix"
+                          />
+                        </div>
+
+                        <div class="col-md-2">
+                          <label class="form-label">Unité</label>
+                          <select
+                            class="form-select"
+                            [(ngModel)]="articleFournisseurForm.uniteId"
+                            name="afUnite"
+                          >
+                            @for (u of unites; track u.id) {
+                              <option [ngValue]="u.id">{{ u.code }}</option>
+                            }
+                          </select>
+                        </div>
+
+                        <div class="col-md-2">
+                          <label class="form-label">Réf</label>
+                          <input
+                            class="form-control"
+                            [(ngModel)]="articleFournisseurForm.referenceFournisseur"
+                            name="afRef"
+                          />
+                        </div>
+
+                        <div class="col-md-1">
+                          <label class="form-label">Délai</label>
+                          <input
+                            type="number"
+                            class="form-control"
+                            [(ngModel)]="articleFournisseurForm.delaiLivraisonJours"
+                            name="afDelai"
+                          />
+                        </div>
+
+                        <div class="col-md-1 text-center">
+                          <label class="form-label">Principal</label>
+                          <input
+                            type="checkbox"
+                            [(ngModel)]="articleFournisseurForm.fournisseurPrincipal"
+                            name="afPrincipal"
+                          />
+                        </div>
+
+                        <div class="col-md-1">
+                          <button
+                            type="button"
+                            class="btn btn-primary w-100"
+                            (click)="addArticleFournisseur()"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+
+                      <!-- TABLE -->
+                      <div class="table-fixed mt-3">
+                        <table class="table table-sm">
+                          <thead>
+                            <tr>
+                              <th>Fournisseur</th>
+                              <th>Prix</th>
+                              <th>Unité</th>
+                              <th>Réf</th>
+                              <th>Délai</th>
+                              <th>Principal</th>
+                              <th></th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            @for (af of articleFournisseurs; track af.id) {
+                              <tr>
+                                <td>{{ af.fournisseur?.nom }}</td>
+                                <td>{{ af.prixAchat | number: '1.0-0' }} Ar</td>
+                                <td>{{ af.unite?.code }}</td>
+                                <td>{{ af.referenceFournisseur }}</td>
+                                <td>{{ af.delaiLivraisonJours }}</td>
+                                <td>
+                                  @if (af.fournisseurPrincipal) {
+                                    <span class="badge bg-primary">Oui</span>
+                                  }
+                                </td>
+                                <td>
+                                  <button
+                                    class="btn btn-sm btn-danger"
+                                    (click)="deleteArticleFournisseur(af.id!)"
+                                  >
+                                    <i class="fa fa-trash"></i>
+                                  </button>
+                                </td>
+                              </tr>
+                            }
+                          </tbody>
+                        </table>
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+              <!-- ===================== -->
+              <!-- UTILISATIONS FT -->
+              <!-- ===================== -->
+              @if (articleTab === 'utilisations') {
+                <div class="tab-pane">
+                  <div class="mt-3">
+                    <div class="row g-2 align-items-end">
+                      <div class="col-md-3">
+                        <label class="form-label">Quantité</label>
+                        <input
+                          type="number"
+                          class="form-control"
+                          [(ngModel)]="utilisationForm.quantite"
+                          name="utilisationQuantite"
+                        />
+                      </div>
+
+                      <div class="col-md-3">
+                        <label class="form-label">Unité</label>
+                        <select
+                          class="form-select"
+                          [(ngModel)]="utilisationForm.uniteId"
+                          name="utilisationUnite"
+                        >
+                          @for (u of unites; track u.id) {
+                            <option [ngValue]="u.id">{{ u.code }}</option>
+                          }
+                        </select>
+                      </div>
+
+                      <div class="col-md-2">
+                        <button
+                          type="button"
+                          class="btn btn-primary w-100"
+                          (click)="addUtilisationFt()"
+                        >
+                          Ajouter
+                        </button>
+                      </div>
+                    </div>
+
+                    <div class="table-fixed mt-3">
+                      <table class="table table-sm">
+                        <thead>
+                          <tr>
+                            <th>Quantité</th>
+                            <th>Unité</th>
+                            <th></th>
+                          </tr>
+                        </thead>
+
+                        <tbody>
+                          @for (u of utilisationsFt; track u.id) {
+                            <tr>
+                              <td>{{ u.quantite }}</td>
+                              <td>{{ u.unite?.code }}</td>
+                              <td>
+                                <button
+                                  class="btn btn-sm btn-danger"
+                                  (click)="deleteUtilisationFt(u.id)"
+                                >
+                                  <i class="fa fa-trash"></i>
+                                </button>
+                              </td>
+                            </tr>
+                          }
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- FOOTER -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+
+          <button class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Enregistrement...' : 'Enregistrer' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

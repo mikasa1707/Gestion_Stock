@@ -1,0 +1,178 @@
+.stat-card {
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 110px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-card span {
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+.stat-card strong {
+  font-size: 1.7rem;
+  color: #0f172a;
+}
+
+.stat-card small {
+  color: #64748b;
+}
+
+.stat-card.danger {
+  border-color: #fecaca;
+  background: #fff7f7;
+}
+
+.table-fixed {
+  height: 280px;
+  overflow-y: auto;
+  border: 1px solid #eef0f3;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.table-fixed.small-table {
+  height: 220px;
+}
+
+.table-fixed table {
+  margin-bottom: 0;
+}
+
+.table-fixed thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 2;
+}
+
+.sales-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sales-row {
+  display: grid;
+  grid-template-columns: 80px 1fr 180px;
+  gap: 12px;
+  align-items: center;
+}
+
+.sales-date {
+  font-weight: 600;
+  color: #334155;
+}
+
+.sales-bar-wrap {
+  height: 12px;
+  background: #eef2f7;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.sales-bar {
+  height: 100%;
+  background: #0d6efd;
+  border-radius: 999px;
+}
+
+.sales-value {
+  font-size: 0.85rem;
+  color: #475569;
+  text-align: right;
+}
+
+.donut-wrap {
+  position: relative;
+  width: 280px;
+  max-width: 100%;
+  margin: 0 auto;
+}
+
+.donut {
+  width: 100%;
+  height: auto;
+  transform: rotate(-90deg);
+}
+
+.donut-hole {
+  fill: transparent;
+  stroke: #eef2f7;
+  stroke-width: 8;
+}
+
+.donut-segment {
+  fill: transparent;
+  stroke-width: 8;
+  stroke-linecap: round;
+  cursor: pointer;
+  transition: 0.2s ease;
+  stroke: #0d6efd;
+  opacity: 0.45;
+}
+
+.donut-segment:nth-of-type(3n + 1) {
+  stroke: #0d6efd;
+}
+
+.donut-segment:nth-of-type(3n + 2) {
+  stroke: #22c55e;
+}
+
+.donut-segment:nth-of-type(3n + 3) {
+  stroke: #f59e0b;
+}
+
+.donut-segment.active {
+  opacity: 1;
+  stroke-width: 9;
+}
+
+.donut-center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.donut-center strong {
+  font-size: 1.4rem;
+}
+
+.donut-center span {
+  color: #64748b;
+}
+
+.donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.legend-item {
+  border: 1px solid #eef0f3;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.legend-item.active {
+  border-color: #0d6efd;
+  background: #f0f7ff;
+}
+
+.sales-table {
+  height: 360px;
+}

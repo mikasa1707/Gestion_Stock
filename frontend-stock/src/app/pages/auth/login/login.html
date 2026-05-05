@@ -1,0 +1,35 @@
+<div class="login-page">
+  <div class="overlay"></div>
+
+  <div class="container d-flex align-items-center justify-content-center min-vh-100">
+    <div class="card shadow border-0 login-card blur-fond">
+      <div class="card-body p-4">
+        <h2 class="mb-1 text-center">Connexion</h2>
+        <p class="mb-4 text-center">Gestion de stock</p>
+
+        <!-- Angular moderne -->
+        @if (error) {
+          <div class="alert alert-danger">
+            {{ error }}
+          </div>
+        }
+
+        <form (ngSubmit)="login()">
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" type="email" [(ngModel)]="email" name="email">
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Mot de passe</label>
+            <input class="form-control" type="password" [(ngModel)]="motDePasse" name="motDePasse">
+          </div>
+
+          <button class="btn btn-primary w-100" [disabled]="loading">
+            {{ loading ? 'Connexion...' : 'Se connecter' }}
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

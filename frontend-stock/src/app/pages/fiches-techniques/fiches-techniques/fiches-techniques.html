@@ -1,0 +1,687 @@
+<div class="page-header d-flex justify-content-between align-items-center">
+  <div>
+    <h4>Fiches Techniques</h4>
+    <p>Produits vendus, recettes et compositions</p>
+  </div>
+
+  <button
+    class="btn btn-primary"
+    data-bs-toggle="modal"
+    data-bs-target="#ftModal"
+    (click)="openCreateModal()"
+  >
+    <i class="fa-solid fa-plus"></i>
+    Ajouter
+  </button>
+</div>
+
+<!-- @if (error) {
+  <div class="alert alert-danger">
+    {{ error }}
+  </div>
+} -->
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="panel">
+      <div class="panel-header">
+        <h5>Liste des fiches techniques</h5>
+      </div>
+
+      @if (loading) {
+        <div class="text-center py-4">
+          <div class="spinner-border"></div>
+        </div>
+      } @else {
+        <!-- <div class="mb-3 d-flex justify-content-between align-items-center gap-2">
+          <input
+            class="form-control"
+            style="max-width: 320px"
+            placeholder="Rechercher..."
+            [(ngModel)]="searchFt"
+            (ngModelChange)="onSearchFtChange()"
+          />
+
+          <small class="text-muted">{{ filteredFts().length }} résultat(s)</small>
+        </div> -->
+        <div class="mb-3">
+          <input
+            class="form-control"
+            placeholder="Rechercher..."
+            [(ngModel)]="searchFt"
+            (ngModelChange)="onSearchFtChange()"
+          />
+        </div>
+        <div class="table-fixed">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Référence</th>
+                <th>Nom</th>
+                <th>Famille</th>
+                <th>Unité</th>
+                <th>Prix vente</th>
+                <th>Actif</th>
+                <th class="text-end">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (item of paginatedFts(); track item.id) {
+                <tr
+                  class="clickable-row"
+                  [class.table-active]="selectedFt?.id === item.id"
+                  (click)="selectFt(item)"
+                >
+                  <td>
+                    <strong>{{ item.reference }}</strong>
+                  </td>
+                  <td>{{ item.nom }}</td>
+                  <td>{{ item.famille?.nom || '-' }}</td>
+                  <td>{{ item.unite?.code || '-' }}</td>
+                  <td>{{ item.prixVente | number: '1.0-2' }} Ar</td>
+                  <td>
+                    @if (item.actif) {
+                      <span class="badge bg-success">Actif</span>
+                    } @else {
+                      <span class="badge bg-secondary">Inactif</span>
+                    }
+                  </td>
+                  <td class="text-end" (click)="$event.stopPropagation()">
+                    <button
+                      class="btn btn-sm btn-outline-primary me-2"
+                      data-bs-toggle="modal"
+                      data-bs-target="#ftModal"
+                      (click)="openEditModal(item)"
+                    >
+                      <i class="fa-solid fa-pen"></i>
+                    </button>
+
+                    <button class="btn btn-sm btn-outline-danger" (click)="remove(item)">
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Aucune fiche technique</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+          <button
+            class="btn btn-sm btn-light me-2"
+            (click)="previousPageFt()"
+            [disabled]="pageFt === 1"
+          >
+            ←
+          </button>
+
+          <span>Page {{ pageFt }} / {{ totalPagesFt() }}</span>
+
+          <button
+            class="btn btn-sm btn-light ms-2"
+            (click)="nextPageFt()"
+            [disabled]="pageFt === totalPagesFt()"
+          >
+            →
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="composition-panel">
+      @if (!selectedFt) {
+        <div class="text-muted text-center py-4">
+          Sélectionne une fiche technique pour voir sa composition
+        </div>
+      } @else {
+        <div class="d-flex justify-content-between align-items-start mb-3">
+          <div>
+            <h6 class="mb-1">{{ selectedFt.nom }}</h6>
+            <small class="text-muted">{{ selectedFt.reference }}</small>
+          </div>
+
+          <span class="badge bg-primary">{{ selectedFtCompositions.length }} composant(s)</span>
+        </div>
+
+        <div class="table-responsive table-scroll sm">
+          <table class="table table-sm align-middle">
+            <thead>
+              <tr>
+                <th>Composant</th>
+                <th>Qté</th>
+                <th>Utilisation</th>
+                <th>Coût</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (ligne of selectedFtCompositions; track ligne.id) {
+                <tr>
+                  <td>
+                    {{ ligne.article?.nom || ligne.ficheTechniqueComposant?.nom }}
+                  </td>
+
+                  <td>{{ ligne.quantite | number: '1.0-2' }}</td>
+
+                  <td>
+                    {{ ligne.conditionnementUtilisation?.quantite | number: '1.0-2' }}
+                    {{ ligne.conditionnementUtilisation?.unite?.code }}
+                  </td>
+
+                  <td>{{ ligne.coutLigne | number: '1.0-2' }} Ar</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="4" class="text-center text-muted">Aucune composition</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+
+        <div class="mt-3 fw-bold text-end">
+          Coût total :
+          {{ selectedFtCout | number: '1.0-2' }} Ar
+        </div>
+        <div class="mt-1 fw-bold text-end">
+          <span [class.text-success]="margeFt > 0" [class.text-danger]="margeFt < 0">
+            Marge
+            {{ margeFt | number: '1.0-2' }} %
+          </span>
+        </div>
+      }
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="ftModal" tabindex="-1">
+  <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ selectedId ? 'Modifier fiche technique' : 'Ajouter fiche technique' }}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <form (ngSubmit)="save()">
+        <div class="modal-body">
+          <div class="row g-3 mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Référence</label>
+              <input
+                class="form-control"
+                placeholder="Ex: FT-001"
+                [(ngModel)]="form.reference"
+                name="reference"
+                required
+              />
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Nom</label>
+              <input
+                class="form-control"
+                placeholder="Nom de la fiche technique"
+                [(ngModel)]="form.nom"
+                name="nom"
+                required
+              />
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Unité</label>
+              <select
+                class="form-select"
+                [(ngModel)]="form.uniteId"
+                name="uniteId"
+                required
+                (ngModelChange)="onUnitePrincipaleChange()"
+              >
+                <option [ngValue]="null">Choisir</option>
+
+                @for (u of unites; track u.id) {
+                  <option [ngValue]="u.id">{{ u.code }} - {{ u.libelle }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Famille</label>
+              <select class="form-select" [(ngModel)]="form.familleId" name="familleId">
+                <option [ngValue]="null">Aucune</option>
+                @for (f of familles; track f.id) {
+                  @if (f.type === 'FICHE_TECHNIQUE') {
+                    <option [ngValue]="f.id">{{ f.nom }}</option>
+                  }
+                }
+              </select>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Prix de vente</label>
+              <div class="input-group">
+                <input
+                  type="number"
+                  class="form-control"
+                  min="0"
+                  step="0.01"
+                  [(ngModel)]="form.prixVente"
+                  name="prixVente"
+                  (ngModelChange)="recalculerCompositionLocale()"
+                />
+                <span class="input-group-text">Ar</span>
+              </div>
+            </div>
+
+            <div class="col-md-3">
+              <label class="form-label">Seuil minimum</label>
+
+              <div class="input-group">
+                <input
+                  type="number"
+                  class="form-control"
+                  [(ngModel)]="form.seuilMinimum"
+                  name="seuilMinimum"
+                />
+
+                <select
+                  class="form-select select-no-chevron"
+                  [(ngModel)]="form.uniteSeuilMinimumId"
+                  name="uniteSeuilMinimumId"
+                >
+                  <option [ngValue]="null">Unité</option>
+                  @for (u of unites; track u.id) {
+                    <option [ngValue]="u.id">{{ u.code }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end">
+              <div class="form-check form-switch mb-2">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  [(ngModel)]="form.actif"
+                  name="actif"
+                />
+                <label class="form-check-label">Actif</label>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea
+                class="form-control"
+                rows="2"
+                [(ngModel)]="form.description"
+                name="description"
+              ></textarea>
+            </div>
+          </div>
+
+          <hr />
+
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h6 class="mb-0">Composition</h6>
+
+            @if (selectedId) {
+              <button
+                type="button"
+                class="btn btn-secondary btn-sm"
+                data-bs-toggle="modal"
+                data-bs-target="#compositionModal"
+                data-bs-backdrop="static"
+                data-bs-keyboard="false"
+              >
+                <i class="fa-solid fa-plus"></i>
+                Ajouter composant
+              </button>
+            }
+          </div>
+
+          @if (!selectedId) {
+            <div class="alert alert-info mb-0">
+              Enregistre d’abord la fiche technique pour ajouter sa composition.
+            </div>
+          } @else {
+            <div class="table-responsive">
+              <table class="table align-middle">
+                <thead>
+                  <tr>
+                    <th>Composant</th>
+                    <th>Type</th>
+                    <th>Conditionnement</th>
+                    <th>Qté</th>
+                    <th>Total utilisé</th>
+                    <th>Coût</th>
+                    <th class="text-end">Action</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (ligne of compositions; track ligne.id) {
+                    <tr>
+                      <td>
+                        {{ ligne.article?.nom || ligne.ficheTechniqueComposant?.nom }}
+                      </td>
+
+                      <td>
+                        @if (ligne.article) {
+                          <span class="badge bg-primary">Article</span>
+                        } @else {
+                          <span class="badge bg-success">FT</span>
+                        }
+                      </td>
+
+                      <td>
+                        @if (editingCompositionId === ligne.id) {
+                          <select
+                            class="form-select form-select-sm"
+                            [(ngModel)]="ligne.conditionnementUtilisationIdEdit"
+                            [name]="'editUtilisation' + ligne.id"
+                            (ngModelChange)="onCompositionUtilisationChange(ligne)"
+                          >
+                            <option [ngValue]="null">Choisir</option>
+                            @for (u of utilisationsPourLigne(ligne); track u.id) {
+                              <option [ngValue]="u.id">
+                                {{ u.quantite | number: '1.0-2' }} {{ u.unite?.code }}
+                              </option>
+                            }
+                          </select>
+                        } @else {
+                          {{ ligne.conditionnementUtilisation?.quantite | number: '1.2-2' }}
+                          {{ ligne.conditionnementUtilisation?.unite?.code }}
+                        }
+                      </td>
+
+                      <td>
+                        @if (editingCompositionId === ligne.id) {
+                          <input
+                            type="number"
+                            class="form-control form-control-sm"
+                            min="0.001"
+                            step="0.001"
+                            [(ngModel)]="ligne.quantite"
+                            [name]="'editQuantite' + ligne.id"
+                            (ngModelChange)="recalculerCompositionLocale()"
+                          />
+                        } @else {
+                          {{ ligne.quantite | number: '1.2-2' }}
+                        }
+                      </td>
+
+                      <td>
+                        {{ ligne.quantite | number: '1.2-2' }} x
+                        {{ ligne.conditionnementUtilisation?.quantite | number: '1.2-2' }}
+                        {{ ligne.conditionnementUtilisation?.unite?.code }}
+                      </td>
+
+                      <td>{{ calculerCoutLigne(ligne) | number: '1.0-2' }} Ar</td>
+
+                      <td class="text-end">
+                        @if (editingCompositionId !== ligne.id) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-outline-primary me-1"
+                            (click)="editComposition(ligne)"
+                          >
+                            <i class="fa-solid fa-pen"></i>
+                          </button>
+                        }
+
+                        @if (editingCompositionId === ligne.id) {
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-success me-1"
+                            (click)="saveComposition(ligne)"
+                          >
+                            <i class="fa-solid fa-check"></i>
+                          </button>
+
+                          <button
+                            type="button"
+                            class="btn btn-sm btn-secondary me-1"
+                            (click)="cancelEditComposition(ligne)"
+                          >
+                            <i class="fa-solid fa-xmark"></i>
+                          </button>
+                        }
+
+                        <button
+                          type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          (click)="deleteComposition(ligne.id)"
+                        >
+                          <i class="fa-solid fa-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="7" class="text-center text-muted">Aucune composition</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-md-4">
+                <div class="stat-box">
+                  <div class="label">Coût total</div>
+                  <div class="value">{{ coutTotal | number: '1.0-0' }} Ar</div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="stat-box">
+                  <div class="label">Marge</div>
+                  <div
+                    class="value"
+                    [class.text-success]="marge >= 0"
+                    [class.text-danger]="marge < 0"
+                  >
+                    {{ marge | number: '1.0-0' }} Ar
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-md-4">
+                <div class="stat-box">
+                  <div class="label">Taux marge</div>
+                  <div
+                    class="value"
+                    [class.text-success]="tauxMarge >= 0"
+                    [class.text-danger]="tauxMarge < 0"
+                  >
+                    {{ tauxMarge | number: '1.0-0' }} %
+                  </div>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-light" data-bs-dismiss="modal">Annuler</button>
+
+          <button class="btn btn-primary" [disabled]="saving">
+            {{ saving ? 'Enregistrement...' : selectedId ? 'Modifier' : 'Ajouter' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="compositionModal" tabindex="-1" data-bs-backdrop="static">
+  <div class="modal-dialog modal-xl modal-dialog-centered">
+    <div class="modal-content border-0">
+      <div class="modal-header">
+        <h5 class="modal-title">Ajouter des composants</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <div class="row g-2 align-items-end mb-3">
+          <div class="col-md-2">
+            <label class="form-label">Type</label>
+            <select class="form-select" [(ngModel)]="compositionForm.type" name="typeComposition">
+              <option value="ARTICLE">Article</option>
+              <option value="FT">Fiche technique</option>
+            </select>
+          </div>
+
+          <div class="col-md-4">
+            <label class="form-label">Composant</label>
+
+            @if (compositionForm.type === 'ARTICLE') {
+              <select
+                class="form-select"
+                [(ngModel)]="compositionForm.articleId"
+                name="compositionArticle"
+              >
+                <option [ngValue]="null">Choisir article</option>
+
+                @for (article of articles; track article.id) {
+                  <option [ngValue]="article.id">
+                    {{ article.nom }}
+                  </option>
+                }
+              </select>
+            } @else {
+              <select
+                class="form-select"
+                [(ngModel)]="compositionForm.ficheTechniqueComposantId"
+                name="compositionFt"
+              >
+                <option [ngValue]="null">Choisir FT</option>
+
+                @for (ft of items; track ft.id) {
+                  @if (ft.id !== selectedId) {
+                    <option [ngValue]="ft.id">
+                      {{ ft.nom }}
+                    </option>
+                  }
+                }
+              </select>
+            }
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label">Utilisation</label>
+            <select
+              class="form-select"
+              [(ngModel)]="compositionForm.conditionnementUtilisationId"
+              name="conditionnementUtilisationId"
+            >
+              <option [ngValue]="null">Choisir</option>
+
+              @for (u of utilisationsDisponibles(); track u.id) {
+                <option [ngValue]="u.id">
+                  {{ u.quantite | number: '1.0-2' }} {{ u.unite?.code }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <div class="col-md-1">
+            <label class="form-label">Qté</label>
+            <input
+              class="form-control"
+              type="number"
+              min="0.001"
+              step="0.001"
+              [(ngModel)]="compositionForm.quantite"
+              name="compositionQuantite"
+            />
+          </div>
+
+          <div class="col-md-2">
+            <button type="button" class="btn btn-secondary w-100" (click)="ajouterLigneTemp()">
+              Ajouter
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table align-middle">
+            <thead>
+              <tr>
+                <th>Composant</th>
+                <th>Type</th>
+                <th>Conditionnement</th>
+                <th>Qté</th>
+                <th>Coût</th>
+                <th>Total utilisé</th>
+                <th class="text-end">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (ligne of compositionTemp; track $index) {
+                <tr>
+                  <td>{{ ligne.nom }}</td>
+
+                  <td>
+                    @if (ligne.type === 'ARTICLE') {
+                      <span class="badge bg-primary">Article</span>
+                    } @else {
+                      <span class="badge bg-success">FT</span>
+                    }
+                  </td>
+
+                  <td>{{ ligne.utilisationLabel }}</td>
+                  <td>{{ ligne.quantite | number: '1.0-2' }}</td>
+                  <td>{{ ligne.cout | number: '1.0-2' }} Ar</td>
+
+                  <td>{{ ligne.quantite | number: '1.0-2' }} x {{ ligne.utilisationLabel }}</td>
+
+                  <td class="text-end">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="supprimerLigneTemp($index)"
+                    >
+                      <i class="fa-solid fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="7" class="text-center text-muted">Aucun composant ajouté</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+          <div class="text-end fw-bold mt-2">
+            Coût total :
+            {{ coutTempTotal | number: '1.0-2' }} Ar
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Fermer</button>
+
+        <button
+          type="button"
+          class="btn btn-primary"
+          [disabled]="compositionTemp.length === 0"
+          (click)="enregistrerCompositionsTemp()"
+        >
+          Enregistrer les composants
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,83 @@
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <i class="fa-solid fa-boxes-stacked"></i>
+      <span>Stock Manager</span>
+    </div>
+
+    <nav class="menu">
+      <a routerLink="/dashboard" routerLinkActive="active">
+        <i class="fa-solid fa-chart-line"></i>
+        Dashboard
+      </a>
+
+      <a routerLink="/articles" routerLinkActive="active">
+        <i class="fa-solid fa-box"></i>
+        Articles
+      </a>
+
+      <a routerLink="/fiches-techniques" routerLinkActive="active">
+        <i class="fa-solid fa-file-lines"></i>
+        Fiches techniques
+      </a>
+
+      <a routerLink="/fournisseurs" routerLinkActive="active">
+        <i class="fa-solid fa-file-lines"></i>
+        Fournisseurs
+      </a>
+
+      <a routerLink="/stock" routerLinkActive="active">
+        <i class="fa-solid fa-warehouse"></i>
+        Stock
+      </a>
+
+      <a routerLink="/achats" routerLinkActive="active">
+        <i class="fa-solid fa-cart-shopping"></i>
+        Achats
+      </a>
+
+      <a routerLink="/ventes" routerLinkActive="active">
+        <i class="fa-solid fa-cash-register"></i>
+        Ventes
+      </a>
+
+      <a routerLink="/inventaires" routerLinkActive="active">
+        <i class="fa-solid fa-clipboard-list"></i>
+        Inventaires
+      </a>
+
+      <a routerLink="/transferts" routerLinkActive="active">
+        <i class="fa-solid fa-right-left"></i>
+        Transferts
+      </a>
+
+      <a routerLink="/stockage" routerLinkActive="active">
+        <i class="fa-solid fa-location-dot"></i>
+        Stockage
+      </a>
+      
+      <a routerLink="/parametres" routerLinkActive="active">
+        <i class="fa-solid fa-gear"></i>
+        Paramètres
+      </a>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <h5 class="mb-0">Gestion de stock</h5>
+        <small>Tableau d’administration</small>
+      </div>
+
+      <button class="btn btn-outline-danger btn-sm" (click)="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i>
+        Déconnexion
+      </button>
+    </header>
+
+    <section class="content">
+      <router-outlet></router-outlet>
+    </section>
+  </main>
+</div>

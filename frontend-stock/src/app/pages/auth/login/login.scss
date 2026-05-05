@@ -1,0 +1,97 @@
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  background: url('/assets/images/fond.png') center / cover no-repeat;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* overlay sombre */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+/* carte */
+.login-card {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  max-width: 420px;
+}
+
+/* glass effect */
+.blur-fond {
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.18),
+    rgba(255, 255, 255, 0.05)
+  );
+
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 16px;
+
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 0 1px rgba(255, 255, 255, 0.4);
+
+  color: #ffffff;
+  padding: 28px;
+}
+
+/* inputs lisibles sur fond sombre */
+.blur-fond .form-control {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #fff;
+}
+
+.blur-fond .form-control::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* bouton */
+.blur-fond .btn {
+  height: 45px;
+}
+
+/* -------- RESPONSIVE -------- */
+
+/* tablette */
+@media (max-width: 768px) {
+  .blur-fond {
+    padding: 24px;
+    border-radius: 14px;
+  }
+}
+
+/* mobile */
+@media (max-width: 480px) {
+  .login-page {
+    padding: 10px;
+  }
+
+  .blur-fond {
+    padding: 20px;
+    border-radius: 12px;
+  }
+
+  .blur-fond h3 {
+    font-size: 1.3rem;
+  }
+
+  .blur-fond .form-control {
+    height: 42px;
+    font-size: 0.9rem;
+  }
+
+  .blur-fond .btn {
+    height: 42px;
+    font-size: 0.9rem;
+  }
+}

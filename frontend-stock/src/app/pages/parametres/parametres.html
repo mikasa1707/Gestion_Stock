@@ -1,0 +1,52 @@
+<div class="page-header">
+  <div>
+    <h4>Paramètres</h4>
+    <p>Gestion des données de base</p>
+  </div>
+</div>
+
+<div class="panel">
+  <ul class="nav nav-pills mb-3">
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'unites'"
+        (click)="setTab('unites')"
+      >
+        Unités
+      </button>
+    </li>
+
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'familles'"
+        (click)="setTab('familles')"
+      >
+        Familles
+      </button>
+    </li>
+
+    <li class="nav-item">
+      <button
+        class="nav-link"
+        [class.active]="activeTab === 'allergenes'"
+        (click)="setTab('allergenes')"
+      >
+        Allergènes
+      </button>
+    </li>
+  </ul>
+
+  @if (activeTab === 'unites') {
+    <app-unites></app-unites>
+  }
+
+  @if (activeTab === 'familles') {
+    <app-familles></app-familles>
+  }
+
+  @if (activeTab === 'allergenes') {
+    <app-allergenes></app-allergenes>
+  }
+</div>

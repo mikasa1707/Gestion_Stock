@@ -1,0 +1,106 @@
+.page-header {
+  margin-bottom: 20px;
+
+  h4 {
+    margin: 0;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 4px 0 0;
+    color: #6b7280;
+  }
+}
+
+.panel {
+  background: #fff;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+}
+
+.panel-header {
+  margin-bottom: 12px;
+
+  h5 {
+    margin: 0;
+    font-weight: 700;
+  }
+}
+
+.table {
+  margin-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.panel {
+  transition: 0.2s;
+}
+
+.panel:hover {
+  transform: translateY(0px);
+}
+
+.badge {
+  padding: 0.45rem 0.65rem;
+}
+
+.cost-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  padding: 12px 14px;
+  border-radius: 12px;
+}
+
+.stat-box {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 12px;
+
+  .label {
+    font-size: 0.75rem;
+    color: #6b7280;
+  }
+
+  .value {
+    font-size: 1.15rem;
+    font-weight: 700;
+  }
+}
+
+.select-no-chevron {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: none !important;
+  padding-right: 0.75rem;
+}
+
+.clickable-row {
+  cursor: pointer;
+}
+
+.composition-panel {
+  background: #fff;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+  min-height: 260px;
+}
+
+.table-scroll.sm {
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.table-scroll table thead th {
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
